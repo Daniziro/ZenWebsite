@@ -21,14 +21,15 @@ const container = document.getElementById("items-container");
 const cartPanel = document.getElementById("cart-panel");
 
 /* ROTATING HERO */
-let slides = document.querySelectorAll(".slide");
-let currentSlide = 0;
+/* HERO IMAGE ROTATION */
+let heroSlides = document.querySelectorAll(".hero-slide");
+let heroIndex = 0;
 
 setInterval(() => {
-  slides[currentSlide].classList.remove("active");
-  currentSlide = (currentSlide + 1) % slides.length;
-  slides[currentSlide].classList.add("active");
-}, 3000);
+  heroSlides[heroIndex].classList.remove("active");
+  heroIndex = (heroIndex + 1) % heroSlides.length;
+  heroSlides[heroIndex].classList.add("active");
+}, 4000);
 
 /* LOAD ITEMS */
 function renderItems() {
@@ -147,3 +148,4 @@ function addItem() {
 }
 
 renderItems();
+
