@@ -9,17 +9,42 @@
 
 <header>
   <h1>⚡ Game Stock Shop</h1>
-  <button id="cart-btn">🛒 Cart (<span id="cart-count">0</span>)</button>
+  <div>
+    <button onclick="openAdmin()">Admin</button>
+    <button id="cart-btn">🛒 Cart (<span id="cart-count">0</span>)</button>
+  </div>
 </header>
 
-<section class="items" id="items-container">
-</section>
+<section class="items" id="items-container"></section>
 
+<!-- CART -->
 <div class="cart-panel" id="cart-panel">
   <h2>Your Cart</h2>
   <div id="cart-items"></div>
   <h3 id="cart-total"></h3>
   <button id="checkout">Checkout</button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-panel" id="admin-panel">
+  <h2>Admin Panel</h2>
+  <div id="admin-login">
+    <input type="password" id="admin-password" placeholder="Enter admin password">
+    <button onclick="loginAdmin()">Login</button>
+  </div>
+
+  <div id="admin-content" style="display:none;">
+    <h3>Add Item</h3>
+    <input type="text" id="item-name" placeholder="Item Name">
+    <input type="text" id="item-desc" placeholder="Description">
+    <input type="number" id="item-price" placeholder="Price">
+    <input type="number" id="item-stock" placeholder="Stock">
+    <input type="text" id="item-image" placeholder="Image URL">
+    <button onclick="addItem()">Add Item</button>
+
+    <h3>Current Items</h3>
+    <div id="admin-items"></div>
+  </div>
 </div>
 
 <script src="script.js"></script>
