@@ -1,22 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Zen Stock Shop</title>
+  <title>Game Market</title>
+
   <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
+
 <body>
 
 <header>
-  <h1>Zen Stock Shop</h1>
+  <h1>⚡ Game Market</h1>
   <div>
     <button onclick="openAdmin()">Admin</button>
-    <button id="cart-btn">🛒 Cart (<span id="cart-count">0</span>)</button>
+    <button id="cart-btn">🛒 (<span id="cart-count">0</span>)</button>
   </div>
 </header>
 
+<!-- HERO SECTION -->
+<section class="hero">
+  <div class="slide active">🔥 Best Prices</div>
+  <div class="slide">⚡ Instant Delivery</div>
+  <div class="slide">🎮 Trusted Seller</div>
+</section>
+
+<!-- GAME SELECTOR -->
+<section class="game-selector">
+  <button onclick="loadGame('bloodlines')">Bloodlines</button>
+  <button onclick="loadGame('gpo')">GPO</button>
+  <button onclick="loadGame('other')">Other</button>
+</section>
+
+<!-- ITEMS -->
 <section class="items" id="items-container"></section>
 
 <!-- CART -->
@@ -30,26 +49,29 @@
 <!-- ADMIN PANEL -->
 <div class="admin-panel" id="admin-panel">
   <h2>Admin Panel</h2>
+
   <div id="admin-login">
-    <input type="password" id="admin-password" placeholder="Enter admin password">
+    <input type="password" id="admin-password" placeholder="Password">
     <button onclick="loginAdmin()">Login</button>
   </div>
 
   <div id="admin-content" style="display:none;">
-    <h3>Add Item</h3>
-    <input type="text" id="item-name" placeholder="Item Name">
-    <input type="text" id="item-desc" placeholder="Description">
-    <input type="number" id="item-price" placeholder="Price">
-    <input type="number" id="item-stock" placeholder="Stock">
-    <input type="text" id="item-image" placeholder="Image URL">
-    <button onclick="addItem()">Add Item</button>
+    <input id="item-name" placeholder="Item Name">
+    <input id="item-desc" placeholder="Description">
+    <input id="item-price" type="number" placeholder="Price">
+    <input id="item-stock" type="number" placeholder="Stock">
+    <input id="item-image" placeholder="Image URL">
 
-    <h3>Current Items</h3>
-    <div id="admin-items"></div>
+    <select id="item-game">
+      <option value="bloodlines">Bloodlines</option>
+      <option value="gpo">GPO</option>
+      <option value="other">Other</option>
+    </select>
+
+    <button onclick="addItem()">Add Item</button>
   </div>
 </div>
 
 <script src="script.js"></script>
 </body>
 </html>
-
