@@ -36,6 +36,7 @@ window.addEventListener("scroll", () => {
 
 function toggleAdmin() {
   document.getElementById("admin-panel").classList.toggle("open");
+  document.getElementById("overlay").classList.toggle("active");
 }
 window.toggleAdmin = toggleAdmin;
 
@@ -122,6 +123,7 @@ function renderAdminItems() {
 
 function toggleCart() {
   document.getElementById("cart-panel").classList.toggle("open");
+  document.getElementById("overlay").classList.toggle("active");
 }
 window.toggleCart = toggleCart;
 
@@ -191,5 +193,6 @@ setInterval(() => {
     i = (i + 1) % words.length;
   }, 300);
 }, 2000);
+
 
 
