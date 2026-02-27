@@ -1,91 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Game Market</title>
-
+  <title>Game Stock Store</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
-
 <body>
 
 <header>
-  <h1>⚡ Game Market</h1>
-  <div>
-    <button onclick="openAdmin()">Admin</button>
-    <button id="cart-btn">🛒 (<span id="cart-count">0</span>)</button>
-  </div>
+  <h1>🎮 Game Stock Store</h1>
 </header>
 
-<!-- HERO SECTION -->
-<!-- HERO -->
-<section class="hero">
-
-  <div class="hero-slide active" 
-       style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1920');">
-    <div class="hero-content">
-      🔥 Best Prices
-    </div>
+<!-- FEATURES -->
+<section class="features">
+  <div class="feature-box">
+    <img id="feature-img-1" src="https://picsum.photos/300/200?random=11">
+    <h3>Instant Delivery</h3>
   </div>
 
-  <div class="hero-slide"
-       style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1920');">
-    <div class="hero-content">
-      ⚡ Instant Delivery
-    </div>
+  <div class="feature-box">
+    <img id="feature-img-2" src="https://picsum.photos/300/200?random=22">
+    <h3>Trusted Seller</h3>
+  </div>
+</section>
+
+<!-- GAME SELECTION -->
+<section class="game-selection">
+  <h2>Select Game</h2>
+  <div class="game-list">
+    <button class="game-btn active" data-game="all">All</button>
+    <button class="game-btn" data-game="roblox">Roblox</button>
+    <button class="game-btn" data-game="fortnite">Fortnite</button>
+    <button class="game-btn" data-game="valorant">Valorant</button>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="products">
+
+  <div class="product-card" data-game="roblox">
+    <img src="https://picsum.photos/300/200?random=1">
+    <h3>Roblox Account</h3>
+    <p>$15</p>
+    <button onclick="addToCart('Roblox Account', 15)">Add to Cart</button>
   </div>
 
-  <div class="hero-slide"
-       style="background-image: url('https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?q=80&w=1920');">
-    <div class="hero-content">
-      🎮 Trusted Seller
-    </div>
+  <div class="product-card" data-game="fortnite">
+    <img src="https://picsum.photos/300/200?random=2">
+    <h3>Fortnite Skin Bundle</h3>
+    <p>$20</p>
+    <button onclick="addToCart('Fortnite Skin Bundle', 20)">Add to Cart</button>
+  </div>
+
+  <div class="product-card" data-game="valorant">
+    <img src="https://picsum.photos/300/200?random=3">
+    <h3>Valorant Smurf Account</h3>
+    <p>$25</p>
+    <button onclick="addToCart('Valorant Smurf Account', 25)">Add to Cart</button>
   </div>
 
 </section>
 
-<!-- ITEMS -->
-<section class="items" id="items-container"></section>
-
 <!-- CART -->
-<div class="cart-panel" id="cart-panel">
+<div class="cart-panel">
   <h2>Your Cart</h2>
+
+  <input 
+    type="text" 
+    id="buyer-discord" 
+    placeholder="Your Discord Username (example: user#1234)"
+  >
+
   <div id="cart-items"></div>
   <h3 id="cart-total"></h3>
   <button id="checkout">Checkout</button>
 </div>
 
-<!-- ADMIN PANEL -->
-<div class="admin-panel" id="admin-panel">
-  <h2>Admin Panel</h2>
-
-  <div id="admin-login">
-    <input type="password" id="admin-password" placeholder="Password">
-    <button onclick="loginAdmin()">Login</button>
-  </div>
-
-  <div id="admin-content" style="display:none;">
-    <input id="item-name" placeholder="Item Name">
-    <input id="item-desc" placeholder="Description">
-    <input id="item-price" type="number" placeholder="Price">
-    <input id="item-stock" type="number" placeholder="Stock">
-    <input id="item-image" placeholder="Image URL">
-
-    <select id="item-game">
-      <option value="bloodlines">Bloodlines</option>
-      <option value="gpo">GPO</option>
-      <option value="other">Other</option>
-    </select>
-
-    <button onclick="addItem()">Add Item</button>
-  </div>
-</div>
-
 <script src="script.js"></script>
 </body>
 </html>
-
