@@ -302,7 +302,7 @@ async function addItemHandler() {
 
   if (!name) { alert("Name required"); return; }
   try {
-    await addDoc(collection(db, "products"), {
+    await addDoc(collection(db, "items"), {
       name, description: "", price, image, game, stock, createdAt: serverTimestamp()
     });
     // clear admin inputs (if present)
@@ -322,7 +322,7 @@ async function addItemHandler() {
    ======================= */
 (function attachProductsListener() {
   try {
-    const productsCol = collection(db, "products");
+    const productsCol = collection(db, "items");
     onSnapshot(productsCol, snapshot => {
       snapshot.docChanges().forEach(change => {
         const id = change.doc.id;
@@ -429,3 +429,4 @@ function showToast(msg, ms = 3000) {
 updateCartUI();
 renderProducts();
 renderAdminItems();
+
