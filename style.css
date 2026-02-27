@@ -69,4 +69,34 @@ button:hover {
 
 .cart-panel.open {
   right: 0;
+
+}
+
+.admin-panel {
+  position: fixed;
+  left: -400px;
+  top: 0;
+  width: 350px;
+  height: 100%;
+  background: #141428;
+  padding: 20px;
+  transition: 0.4s;
+  overflow-y: auto;
+}
+
+.admin-panel.open {
+  left: 0;
+}
+
+.admin-panel input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+}
+
+.admin-panel button {
+  width: 100%;
+  margin-bottom: 10px;
 }
