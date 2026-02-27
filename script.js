@@ -194,5 +194,20 @@ setInterval(() => {
   }, 300);
 }, 2000);
 
+const overlay = document.getElementById("overlay");
+
+overlay.addEventListener("click", () => {
+  document.getElementById("cart-panel").classList.remove("open");
+  document.getElementById("admin-panel").classList.remove("open");
+  overlay.classList.remove("active");
+});
+
+const overlay = document.getElementById("overlay");
+
+overlay.addEventListener("click", () => {
+  document.getElementById("cart-panel").classList.remove("open");
+  document.getElementById("admin-panel").classList.remove("open");
+  overlay.classList.remove("active");
+});
 
 
