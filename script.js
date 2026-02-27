@@ -23,6 +23,15 @@ let cart = [];
 let products = [];
 let currentGame = "all";
 
+window.addEventListener("scroll", () => {
+  const header = document.querySelector(".header");
+  if (window.scrollY > 50) {
+    header.classList.add("scrolled");
+  } else {
+    header.classList.remove("scrolled");
+  }
+});
+
 /* ================= ADMIN ================= */
 
 function toggleAdmin() {
@@ -182,4 +191,5 @@ setInterval(() => {
     i = (i + 1) % words.length;
   }, 300);
 }, 2000);
+
 
