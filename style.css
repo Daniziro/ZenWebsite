@@ -195,5 +195,22 @@ input, select {
   color: white;
 }
 
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.close-btn:hover {
+  transform: rotate(90deg);
+  color: #8c52ff;
+}
+
 
 
