@@ -11,8 +11,7 @@ import {
   runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ================= FIREBASE ================= */
-
+// FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyA9XzO8YWtcEDG6Oqy9aUR-NONtZtyASo0",
   authDomain: "website-8b72a.firebaseapp.com",
@@ -24,199 +23,168 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-getAnalytics(app);
+try { getAnalytics(app); } catch { }
 const db = getFirestore(app);
 
-/* ================= DISCORD WEBHOOK ================= */
-
+// DISCORD WEBHOOK
 const DISCORD_WEBHOOK =
   "https://discord.com/api/webhooks/1476962164269908148/AgpaowygIg05V__Q6r-s_hT58fX4hynQarnYKNfeK2Jk9PEmfrULLVm_GwaHSNq7QHp9";
 
-/* ================= STATE ================= */
-
-let productsMap = new Map();
 let cart = [];
+let productsMap = new Map();
 let currentGame = "all";
 
-/* ================= RENDER PRODUCTS ================= */
-
+// RENDER PRODUCTS
 function renderProducts() {
   const container = document.getElementById("products");
   if (!container) return;
-
   container.innerHTML = "";
 
-  const list = Array.from(productsMap.values()).filter(
-    p => currentGame === "all" || p.game === currentGame
-  );
-
-  list.forEach(p => {
-    const card = document.createElement("div");
-    card.className = "product-card";
-
-    card.innerHTML = `
-      <img src="${p.image || "https://picsum.photos/600/400"}">
-      <h3>${p.name}</h3>
-      <div class="card-meta">
-        <div class="price">$${Number(p.price).toFixed(2)}</div>
-        <button class="primary-btn">Add</button>
-      </div>
-    `;
-
-    card.querySelector(".primary-btn").addEventListener("click", () => {
-      cart.push(p);
-      updateCart();
+  Array.from(productsMap.values())
+    .filter(p => currentGame === "all" || p.game === currentGame)
+    .forEach(p => {
+      const card = document.createElement("div");
+      card.className = "product-card";
+      card.innerHTML = `
+        <img src="${p.image || "https://picsum.photos/600/400"}">
+        <h3>${p.name}</h3>
+        <div class="card-meta">
+          <div class="price">$${Number(p.price).toFixed(2)}</div>
+          <button class="primary-btn">Add</button>
+        </div>
+      `;
+      card.querySelector("button").onclick = () => {
+        cart.push(p);
+        updateCart();
+      };
+      container.appendChild(card);
     });
-
-    container.appendChild(card);
-  });
 }
 
-/* ================= REALTIME FIRESTORE ================= */
-
+// REALTIME FIRESTORE
 onSnapshot(collection(db, "products"), snapshot => {
   productsMap.clear();
-  snapshot.forEach(docSnap => {
-    productsMap.set(docSnap.id, { id: docSnap.id, ...docSnap.data() });
-  });
+  snapshot.forEach(d => productsMap.set(d.id, { id: d.id, ...d.data() }));
   renderProducts();
+  renderAdminItems();
 });
 
-/* ================= ADMIN ADD ITEM ================= */
+// ADMIN AUTH
+function loginAdmin() {
+  if (document.getElementById("admin-password").value === "1234") {
+    document.getElementById("admin-login").style.display = "none";
+    document.getElementById("admin-content").style.display = "block";
+  } else alert("Wrong password");
+}
+window.loginAdmin = loginAdmin;
 
+// ADD ITEM
 async function addItem() {
-  const name = document.getElementById("item-name")?.value;
-  const price = document.getElementById("item-price")?.value;
-  const image = document.getElementById("item-image")?.value;
-  const game = document.getElementById("item-game")?.value;
-  const stock = document.getElementById("item-stock")?.value;
+  const name = document.getElementById("item-name").value;
+  const price = document.getElementById("item-price").value;
+  const image = document.getElementById("item-image").value;
+  const game = document.getElementById("item-game").value;
+  const stock = Number(document.getElementById("item-stock").value);
 
-  if (!name || !price) {
-    alert("Name and price required");
-    return;
-  }
+  if (!name || !price) return alert("Name & price required");
 
   try {
     await addDoc(collection(db, "products"), {
       name,
       price: Number(price),
-      image: image || "",
-      game: game || "other",
-      stock: Number(stock) || 0,
+      image,
+      game,
+      stock,
       createdAt: serverTimestamp()
     });
-
     alert("Item added!");
   } catch (err) {
     console.error(err);
-    alert("Error: " + err.message);
+    alert("Error adding item: " + err.message);
   }
 }
-
-/* 🔥 MAKE GLOBAL FOR onclick */
 window.addItem = addItem;
 
-/* ================= CART ================= */
-
-function updateCart() {
-  const cartItems = document.getElementById("cart-items");
-  const totalEl = document.getElementById("cart-total");
-  const countEl = document.getElementById("cart-count");
-
-  if (!cartItems || !totalEl) return;
-
-  cartItems.innerHTML = "";
-  let total = 0;
-
-  cart.forEach((item, index) => {
-    total += Number(item.price);
-
-    const div = document.createElement("div");
-    div.className = "cart-item";
-    div.innerHTML = `
-      <div>${item.name}</div>
-      <div>$${Number(item.price).toFixed(2)}</div>
-    `;
-    cartItems.appendChild(div);
-  });
-
-  totalEl.innerText = "Total: $" + total.toFixed(2);
-  if (countEl) countEl.innerText = cart.length;
+// ADMIN ITEMS LIST
+function renderAdminItems() {
+  const adminItems = document.getElementById("admin-items");
+  if (!adminItems) return;
+  adminItems.innerHTML = "";
+  Array.from(productsMap.values())
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+    .forEach(p => {
+      const row = document.createElement("div");
+      row.className = "admin-item";
+      row.innerHTML = `
+        <div>
+          <strong>${p.name}</strong> • ${p.game} • $${p.price} • stock: ${p.stock}
+        </div>
+        <button class="danger-btn">Delete</button>
+      `;
+      row.querySelector("button").onclick = async () => {
+        await deleteDoc(doc(db, "products", p.id));
+      };
+      adminItems.appendChild(row);
+    });
 }
 
-/* ================= CHECKOUT ================= */
+// CART
+function updateCart() {
+  const cartItemsEl = document.getElementById("cart-items");
+  const cartTotalEl = document.getElementById("cart-total");
+  const cartCountEl = document.getElementById("cart-count");
 
+  cartItemsEl.innerHTML = "";
+  let total = 0;
+
+  cart.forEach(i => {
+    total += Number(i.price);
+    cartItemsEl.innerHTML += `<div class="cart-item">${i.name} - $${i.price}</div>`;
+  });
+
+  cartTotalEl.innerText = "Total: $" + total.toFixed(2);
+  cartCountEl.innerText = cart.length;
+}
+
+window.toggleCart = () => {
+  document.getElementById("cart-panel").classList.toggle("open");
+};
+
+window.toggleAdmin = () => {
+  document.getElementById("admin-panel").classList.toggle("open");
+};
+
+// CHECKOUT
 async function checkout() {
-  const discordUser = document.getElementById("buyer-discord")?.value;
-
-  if (!discordUser) {
-    alert("Enter Discord username");
-    return;
-  }
-
-  if (cart.length === 0) {
-    alert("Cart empty");
-    return;
-  }
+  const discordUser = document.getElementById("buyer-discord").value.trim();
+  if (!discordUser) return alert("Enter Discord username");
+  if (cart.length === 0) return alert("Cart empty");
 
   let total = 0;
-  const itemsText = cart
-    .map(i => {
-      total += Number(i.price);
-      return `• ${i.name} - $${Number(i.price).toFixed(2)}`;
-    })
-    .join("\n");
+  const itemsText = cart.map(i => {
+    total += Number(i.price);
+    return `• ${i.name} - $${i.price}`;
+  }).join("\n");
 
   await fetch(DISCORD_WEBHOOK, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      content: `🛒 NEW ORDER\nUser: ${discordUser}\n\n${itemsText}\n\nTotal: $${total.toFixed(
-        2
-      )}`
+      content:
+        `🛒 NEW ORDER\nDiscord: ${discordUser}\n\n${itemsText}\n\nTotal: $${total.toFixed(2)}`
     })
-  });
-
-  await addDoc(collection(db, "orders"), {
-    buyer: discordUser,
-    items: cart,
-    total,
-    createdAt: serverTimestamp()
   });
 
   alert("Order sent!");
   cart = [];
   updateCart();
 }
-
-/* 🔥 MAKE GLOBAL */
 window.checkout = checkout;
 
-/* ================= ADMIN PANEL TOGGLE ================= */
-
-function toggleAdmin() {
-  const panel = document.getElementById("admin-panel");
-  if (panel) panel.classList.toggle("open");
-}
-
-window.toggleAdmin = toggleAdmin;
-
-/* ================= CART TOGGLE ================= */
-
-function toggleCart() {
-  const panel = document.getElementById("cart-panel");
-  if (panel) panel.classList.toggle("open");
-}
-
-window.toggleCart = toggleCart;
-
-/* ================= GAME FILTER ================= */
-
+// GAME FILTER
 document.addEventListener("click", e => {
   if (e.target.classList.contains("game-btn")) {
-    document.querySelectorAll(".game-btn").forEach(b =>
-      b.classList.remove("active")
-    );
+    document.querySelectorAll(".game-btn").forEach(b => b.classList.remove("active"));
     e.target.classList.add("active");
     currentGame = e.target.dataset.game;
     renderProducts();
