@@ -1,4 +1,4 @@
-import { initializeApp } from "https://surl.li/dpmszz";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore,
   collection,
@@ -6,7 +6,7 @@ import {
   onSnapshot,
   deleteDoc,
   doc
-} from "https://surl.li/dpmszz";
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA9XzO8YWtcEDG6Oqy9aUR-NONtZtyASo0",
@@ -23,16 +23,33 @@ let cart = [];
 let products = [];
 let currentGame = "all";
 
+/* HEADER SHRINK */
 window.addEventListener("scroll", () => {
   const header = document.querySelector(".header");
-  if (window.scrollY > 50) {
-    header.classList.add("scrolled");
-  } else {
-    header.classList.remove("scrolled");
-  }
+  if (window.scrollY > 50) header.classList.add("scrolled");
+  else header.classList.remove("scrolled");
 });
 
-/* ================= ADMIN ================= */
+/* ROTATING TEXT */
+const words = ["Game Items", "Accounts", "Currency", "Boosting"];
+let i = 0;
+setInterval(() => {
+  const el = document.getElementById("rotating-text");
+  if (!el) return;
+  el.style.opacity = 0;
+  setTimeout(() => {
+    el.textContent = words[i];
+    el.style.opacity = 1;
+    i = (i + 1) % words.length;
+  }, 300);
+}, 2000);
+
+/* PANELS */
+function toggleCart() {
+  document.getElementById("cart-panel").classList.toggle("open");
+  document.getElementById("overlay").classList.toggle("active");
+}
+window.toggleCart = toggleCart;
 
 function toggleAdmin() {
   document.getElementById("admin-panel").classList.toggle("open");
@@ -40,47 +57,51 @@ function toggleAdmin() {
 }
 window.toggleAdmin = toggleAdmin;
 
+document.getElementById("overlay").addEventListener("click", () => {
+  document.getElementById("cart-panel").classList.remove("open");
+  document.getElementById("admin-panel").classList.remove("open");
+  document.getElementById("overlay").classList.remove("active");
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    document.getElementById("cart-panel").classList.remove("open");
+    document.getElementById("admin-panel").classList.remove("open");
+    document.getElementById("overlay").classList.remove("active");
+  }
+});
+
+/* ADMIN PASSWORD */
 function loginAdmin() {
   if (document.getElementById("admin-password").value === "1234") {
     document.getElementById("admin-content").style.display = "block";
-  } else {
-    alert("Wrong password");
-  }
+  } else alert("Wrong password");
 }
 window.loginAdmin = loginAdmin;
 
-async function addItem() {
-  const name = document.getElementById("item-name").value;
-  const price = Number(document.getElementById("item-price").value);
-  const image = document.getElementById("item-image").value;
-  const game = document.getElementById("item-game").value;
-  const stock = Number(document.getElementById("item-stock").value);
-
-  if (!name || !price) return alert("Fill required fields");
-
-  await addDoc(collection(db, "products"), {
-    name, price, image, game, stock
-  });
-
-  alert("Item added");
-}
-window.addItem = addItem;
-
-/* ================= FIRESTORE ================= */
-
+/* FIRESTORE */
 onSnapshot(collection(db, "products"), snapshot => {
   products = [];
-  snapshot.forEach(doc => {
-    products.push({ id: doc.id, ...doc.data() });
-  });
+  snapshot.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
   renderProducts();
   renderAdminItems();
 });
 
-/* ================= RENDER ================= */
+async function addItem() {
+  const name = item-name.value;
+  const price = Number(item-price.value);
+  const image = item-image.value;
+  const game = item-game.value;
+  const stock = Number(item-stock.value);
+
+  if (!name || !price) return alert("Fill fields");
+
+  await addDoc(collection(db, "products"), { name, price, image, game, stock });
+}
+window.addItem = addItem;
 
 function renderProducts() {
-  const container = document.getElementById("products");
+  const container = products = document.getElementById("products");
   container.innerHTML = "";
 
   products
@@ -92,7 +113,7 @@ function renderProducts() {
         <img src="${p.image || 'https://picsum.photos/300'}">
         <h3>${p.name}</h3>
         <p>$${p.price}</p>
-        <button class="btn primary">Add</button>
+        <button class="btn">Add</button>
       `;
       card.querySelector("button").onclick = () => {
         cart.push(p);
@@ -105,27 +126,16 @@ function renderProducts() {
 function renderAdminItems() {
   const container = document.getElementById("admin-items");
   container.innerHTML = "";
-
   products.forEach(p => {
     const div = document.createElement("div");
-    div.innerHTML = `
-      ${p.name} - $${p.price}
-      <button class="btn">Delete</button>
-    `;
+    div.innerHTML = `${p.name} - $${p.price}
+      <button class="btn">Delete</button>`;
     div.querySelector("button").onclick = async () => {
       await deleteDoc(doc(db, "products", p.id));
     };
     container.appendChild(div);
   });
 }
-
-/* ================= CART ================= */
-
-function toggleCart() {
-  document.getElementById("cart-panel").classList.toggle("open");
-  document.getElementById("overlay").classList.toggle("active");
-}
-window.toggleCart = toggleCart;
 
 function updateCart() {
   const items = document.getElementById("cart-items");
@@ -134,12 +144,10 @@ function updateCart() {
 
   items.innerHTML = "";
   let total = 0;
-
   cart.forEach(i => {
     total += i.price;
     items.innerHTML += `<div>${i.name} - $${i.price}</div>`;
   });
-
   totalEl.innerText = "Total: $" + total;
   count.innerText = cart.length;
 }
@@ -149,28 +157,24 @@ async function checkout() {
   if (!user) return alert("Enter Discord username");
 
   let total = 0;
-  let itemsText = "";
-
+  let text = "";
   cart.forEach(i => {
     total += i.price;
-    itemsText += `${i.name} - $${i.price}\n`;
+    text += `${i.name} - $${i.price}\n`;
   });
 
   await fetch(webhook, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      content: `NEW ORDER\nUser: ${user}\n\n${itemsText}\nTotal: $${total}`
+      content: `NEW ORDER\nUser: ${user}\n\n${text}\nTotal: $${total}`
     })
   });
 
-  alert("Order sent!");
   cart = [];
   updateCart();
 }
 window.checkout = checkout;
-
-/* ================= GAME FILTER ================= */
 
 document.addEventListener("click", e => {
   if (e.target.classList.contains("game")) {
@@ -180,35 +184,3 @@ document.addEventListener("click", e => {
     renderProducts();
   }
 });
-const words = ["Game Items", "Accounts", "Currency", "Boosting"];
-let i = 0;
-
-setInterval(() => {
-  const el = document.getElementById("rotating-text");
-  if (!el) return;
-  el.style.opacity = 0;
-  setTimeout(() => {
-    el.textContent = words[i];
-    el.style.opacity = 1;
-    i = (i + 1) % words.length;
-  }, 300);
-}, 2000);
-
-const overlay = document.getElementById("overlay");
-
-overlay.addEventListener("click", () => {
-  document.getElementById("cart-panel").classList.remove("open");
-  document.getElementById("admin-panel").classList.remove("open");
-  overlay.classList.remove("active");
-});
-
-const overlay = document.getElementById("overlay");
-
-overlay.addEventListener("click", () => {
-  document.getElementById("cart-panel").classList.remove("open");
-  document.getElementById("admin-panel").classList.remove("open");
-  overlay.classList.remove("active");
-});
-
-
-
