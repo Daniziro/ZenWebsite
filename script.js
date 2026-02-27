@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from "https://surl.li/dpmszz";
 import {
   getFirestore,
   collection,
@@ -6,7 +6,7 @@ import {
   onSnapshot,
   deleteDoc,
   doc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+} from "https://surl.li/dpmszz";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA9XzO8YWtcEDG6Oqy9aUR-NONtZtyASo0",
@@ -209,5 +209,6 @@ overlay.addEventListener("click", () => {
   document.getElementById("admin-panel").classList.remove("open");
   overlay.classList.remove("active");
 });
+
 
 
