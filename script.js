@@ -2,10 +2,10 @@ const ADMIN_PASSWORD = "1234"; // CHANGE THIS
 
 let items = JSON.parse(localStorage.getItem("items")) || [
   {
-    name: "Hyuga Account",
+    name: "Hyuga Acc",
     price: 10,
     description: "Hyuga Unverified +13 Account",
-    stock: 5,
+    stock: 3,
     image: "Hyuga.png"
   }
 ];
@@ -142,5 +142,6 @@ function deleteItem(index) {
 
 renderItems();
 updateCart();
+
 
 
