@@ -12,7 +12,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const ADMIN_PASSWORD = "1234"; // change this
+const ADMIN_PASSWORD = "AdminPassword"; // change this
 const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1476962164269908148/AgpaowygIg05V__Q6r-s_hT58fX4hynQarnYKNfeK2Jk9PEmfrULLVm_GwaHSNq7QHp9";
 
 let cart = [];
@@ -134,3 +134,4 @@ document.getElementById("checkout").onclick = async () => {
 };
 
 renderItems();
+
