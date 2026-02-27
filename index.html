@@ -2,22 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ZenShopWeb</title>
+  <title>ZenShop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<section class="hero">
-  <div class="hero-content">
-    <h1>
-      Buy <span id="rotating-text"></span>
-    </h1>
-    <p>Instant delivery • Trusted marketplace • Secure trading</p>
-    <button class="btn hero-btn">Browse Products</button>
-  </div>
-</section>
-  
-  <!-- WEBSITE ICON -->
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/891/891462.png">
-
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -30,6 +18,14 @@
   </div>
 </header>
 
+<section class="hero">
+  <div class="hero-content">
+    <h1>Buy <span id="rotating-text">Game Items</span></h1>
+    <p>Instant delivery • Trusted marketplace • Secure trading</p>
+    <button class="btn hero-btn">Browse Products</button>
+  </div>
+</section>
+
 <section class="games">
   <button class="game active" data-game="all">All</button>
   <button class="game" data-game="bloodlines">Bloodlines</button>
@@ -38,6 +34,9 @@
 </section>
 
 <section id="products" class="products"></section>
+
+<!-- OVERLAY -->
+<div id="overlay"></div>
 
 <!-- CART PANEL -->
 <div id="cart-panel" class="panel">
@@ -53,6 +52,7 @@
 <div id="admin-panel" class="panel">
   <button class="close-btn" onclick="toggleAdmin()">✕</button>
   <h3>Admin Panel</h3>
+
   <input id="admin-password" type="password" placeholder="Password">
   <button class="btn primary" onclick="loginAdmin()">Login</button>
 
@@ -73,11 +73,7 @@
     <div id="admin-items"></div>
   </div>
 </div>
-<div id="overlay"></div>
+
 <script type="module" src="script.js"></script>
 </body>
 </html>
-
-
-
-
