@@ -11,7 +11,21 @@ body {
   color: white;
   overflow-x: hidden;
 }
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+  z-index: 1500;
+}
 
+#overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
 /* HEADER */
 
 .header {
@@ -180,5 +194,6 @@ input, select {
   background: rgba(255,255,255,0.05);
   color: white;
 }
+
 
 
