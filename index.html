@@ -2,135 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ZenShop Web</title>
+  <title>ZenShop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <!-- WEBSITE ICON -->
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/891/891462.png">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="site-header">
-    <div class="brand">
-      <div class="logo">GV</div>
-      <div class="brand-text">
-        <h1>ZenShop</h1>
-        <p class="sub">In-game items — instant delivery</p>
-      </div>
-    </div>
+<header class="header">
+  <div class="logo">ZenShop</div>
+  <div>
+    <button class="btn" onclick="toggleAdmin()">Admin</button>
+    <button class="btn" onclick="toggleCart()">🛒 <span id="cart-count">0</span></button>
+  </div>
+</header>
 
-    <div class="header-actions">
-      <button class="nav-btn" onclick="toggleAdmin()">Admin</button>
-      <button class="cart-btn" onclick="toggleCart()">
-        🛒 <span id="cart-count">0</span>
-      </button>
-    </div>
-  </header>
+<section class="games">
+  <button class="game active" data-game="all">All</button>
+  <button class="game" data-game="bloodlines">Bloodlines</button>
+  <button class="game" data-game="gpo">GPO</button>
+  <button class="game" data-game="other">Other</button>
+</section>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1605902711622-cfb43c4437d1?q=80&w=1920')">
-      <div class="hero-overlay"></div>
-      <div class="hero-center">
-        <h2>Instant Delivery</h2>
-        <p>Trusted • Fast • Secure</p>
-      </div>
-    </div>
+<section id="products" class="products"></section>
 
-    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1920')">
-      <div class="hero-overlay"></div>
-      <div class="hero-center">
-        <h2>Exclusive Deals</h2>
-        <p>Best & Verified Offers</p>
-      </div>
-    </div>
+<!-- CART PANEL -->
+<div id="cart-panel" class="panel">
+  <h3>Cart</h3>
+  <input id="buyer-discord" placeholder="Discord username">
+  <div id="cart-items"></div>
+  <h4 id="cart-total">Total: $0</h4>
+  <button class="btn primary" onclick="checkout()">Checkout</button>
+</div>
 
-    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1920')">
-      <div class="hero-overlay"></div>
-      <div class="hero-center">
-        <h2>24/7 Support</h2>
-        <p>Trusted By Hundreds</p>
-      </div>
-    </div>
-  </section>
+<!-- ADMIN PANEL -->
+<div id="admin-panel" class="panel">
+  <h3>Admin Panel</h3>
+  <input id="admin-password" type="password" placeholder="Password">
+  <button class="btn primary" onclick="loginAdmin()">Login</button>
 
-  <!-- GAME FILTER -->
-  <section class="game-selector">
-    <button class="game-btn active" data-game="all">All</button>
-    <button class="game-btn" data-game="bloodlines">Bloodlines</button>
-    <button class="game-btn" data-game="gpo">GPO</button>
-    <button class="game-btn" data-game="other">Other</button>
-  </section>
+  <div id="admin-content" style="display:none;">
+    <input id="item-name" placeholder="Name">
+    <input id="item-price" type="number" placeholder="Price">
+    <input id="item-image" placeholder="Image URL">
 
-  <!-- PRODUCTS -->
-  <main class="main-wrap">
-    <section class="products" id="products"></section>
-  </main>
+    <select id="item-game">
+      <option value="bloodlines">Bloodlines</option>
+      <option value="gpo">GPO</option>
+      <option value="other">Other</option>
+    </select>
 
-  <!-- CART PANEL -->
-  <aside class="cart-panel" id="cart-panel">
-    <div class="panel-header">
-      <h3>Your Cart</h3>
-      <button class="close-btn" onclick="toggleCart()">✕</button>
-    </div>
+    <input id="item-stock" type="number" placeholder="Stock">
+    <button class="btn primary" onclick="addItem()">Add Item</button>
 
-    <div class="panel-body">
-      <label class="label">Discord username</label>
-      <input id="buyer-discord" placeholder="user#1234">
+    <div id="admin-items"></div>
+  </div>
+</div>
 
-      <div id="cart-items" class="cart-items"></div>
-
-      <div class="cart-footer">
-        <div id="cart-total" class="cart-total">Total: $0</div>
-        <button id="checkout" class="primary-btn" onclick="checkout()">Place Order</button>
-      </div>
-    </div>
-  </aside>
-
-  <!-- ADMIN PANEL -->
-  <aside class="admin-panel" id="admin-panel">
-    <div class="panel-header">
-      <h3>Admin Panel</h3>
-      <button class="close-btn" onclick="toggleAdmin()">✕</button>
-    </div>
-
-    <div class="panel-body">
-      <label class="label">Admin Password</label>
-      <input id="admin-password" type="password" placeholder="password">
-      <button class="primary-btn" onclick="loginAdmin()">Login</button>
-
-      <div id="admin-content" style="display:none">
-        <label class="label">Name</label>
-        <input id="item-name">
-
-        <label class="label">Price</label>
-        <input id="item-price" type="number">
-
-        <label class="label">Image URL</label>
-        <input id="item-image">
-
-        <label class="label">Game</label>
-        <select id="item-game">
-          <option value="bloodlines">Bloodlines</option>
-          <option value="gpo">GPO</option>
-          <option value="other">Other</option>
-        </select>
-
-        <label class="label">Stock</label>
-        <input id="item-stock" type="number">
-
-        <button class="primary-btn" onclick="addItem()">Add Item</button>
-
-        <h4>Items List</h4>
-        <div id="admin-items" class="admin-items"></div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Toast -->
-  <div id="toast" class="toast" style="display:none"></div>
-
-  <script type="module" src="script.js"></script>
+<script type="module" src="script.js"></script>
 </body>
 </html>
