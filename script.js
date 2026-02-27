@@ -4,9 +4,9 @@ let items = JSON.parse(localStorage.getItem("items")) || [
   {
     name: "Hyuga Account",
     price: 10,
-    description: "Legendary fire blade",
+    description: "Hyuga Unverified +13 Account",
     stock: 5,
-    image: "https://via.placeholder.com/300x200"
+    image: "Hyuga.png"
   }
 ];
 
@@ -142,4 +142,5 @@ function deleteItem(index) {
 
 renderItems();
 updateCart();
+
 
