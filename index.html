@@ -2,95 +2,129 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Premium Game Store</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <title>GameVault – Premium Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-  <!-- 🔥 NAVBAR -->
-  <header class="navbar">
-    <h1 class="logo">GameVault</h1>
-
-    <select id="gameFilter" class="game-select">
-      <option value="Bloodlines">Bloodlines</option>
-      <option value="GPO">GPO</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <button id="adminBtn" class="admin-btn">Admin</button>
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">GV</div>
+      <div class="brand-text">
+        <h1>GameVault</h1>
+        <p class="sub">In-game items — instant delivery</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="nav-btn" id="openAdminBtn">Admin</button>
+      <button class="cart-btn" id="cart-btn">🛒 <span id="cart-count">0</span></button>
+    </div>
   </header>
 
-  <!-- 🔥 HERO SECTION -->
+  <!-- HERO / IMAGE ROTATING -->
   <section class="hero">
-    <div class="hero-slider">
-      <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e" class="hero-slide active">
-      <img src="https://images.unsplash.com/photo-1605902711622-cfb43c4437d1" class="hero-slide">
-      <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420" class="hero-slide">
+    <div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1605902711622-cfb43c4437d1?q=80&w=1920');">
+      <div class="hero-overlay"></div>
+      <div class="hero-center">
+        <h2>Instant Delivery</h2>
+        <p>Trusted • Fast • Secure</p>
+      </div>
     </div>
 
-    <div class="hero-text">
-      <h2>Instant Delivery</h2>
-      <p>Trusted • Fast • Secure</p>
-    </div>
-  </section>
-
-  <!-- 🔥 FEATURE ROTATING CARDS -->
-  <section class="features">
-    <div class="feature-card">
-      <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png">
-      <h3>Instant Delivery</h3>
+    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1920');">
+      <div class="hero-overlay"></div>
+      <div class="hero-center">
+        <h2>Exclusive Deals</h2>
+        <p>Best & Verified Offers</p>
+      </div>
     </div>
 
-    <div class="feature-card">
-      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828640.png">
-      <h3>Trusted Seller</h3>
-    </div>
-
-    <div class="feature-card">
-      <img src="https://cdn-icons-png.flaticon.com/512/709/709496.png">
-      <h3>24/7 Support</h3>
+    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1920');">
+      <div class="hero-overlay"></div>
+      <div class="hero-center">
+        <h2>24/7 Support</h2>
+        <p>Trusted By Hundreds</p>
+      </div>
     </div>
   </section>
 
-  <!-- 🔥 ITEMS SECTION -->
-  <section class="items-section">
-    <h2>Available Items</h2>
-    <div id="itemsContainer" class="items-grid"></div>
+  <!-- GAME FILTER -->
+  <section class="game-selector">
+    <button class="game-btn active" data-game="all">All</button>
+    <button class="game-btn" data-game="bloodlines">Bloodlines</button>
+    <button class="game-btn" data-game="gpo">GPO</button>
+    <button class="game-btn" data-game="other">Other</button>
   </section>
 
-  <!-- 🔥 ADMIN PANEL -->
-  <div id="adminPanel" class="admin-panel hidden">
-    <h2>Admin Panel</h2>
+  <!-- PRODUCTS -->
+  <main class="main-wrap">
+    <section class="products" id="products">
+      <!-- Firestore items will go here -->
+    </section>
+  </main>
 
-    <input type="text" id="itemName" placeholder="Item Name">
-    <input type="number" id="itemPrice" placeholder="Price">
-    <input type="text" id="itemImage" placeholder="Image URL">
+  <!-- CART PANEL -->
+  <aside class="cart-panel" id="cart-panel">
+    <div class="panel-header">
+      <h3>Your Cart</h3>
+      <button class="close-btn" onclick="toggleCart(false)">✕</button>
+    </div>
 
-    <select id="gameSelectAdmin">
-      <option value="Bloodlines">Bloodlines</option>
-      <option value="GPO">GPO</option>
-      <option value="Other">Other</option>
-    </select>
+    <div class="panel-body">
+      <label class="label">Discord username</label>
+      <input id="buyer-discord" placeholder="user#1234">
 
-    <button id="addItemBtn">Add Item</button>
-  </div>
+      <div id="cart-items" class="cart-items"></div>
+      <div class="cart-footer">
+        <div id="cart-total" class="cart-total">Total: $0</div>
+        <button id="checkout" class="primary-btn">Place Order</button>
+      </div>
+    </div>
+  </aside>
 
-  <!-- 🔥 HERO AUTO ROTATION SCRIPT -->
-  <script>
-    const slides = document.querySelectorAll(".hero-slide");
-    let currentSlide = 0;
+  <!-- ADMIN PANEL -->
+  <aside class="admin-panel" id="admin-panel">
+    <div class="panel-header">
+      <h3>Admin Panel</h3>
+      <button class="close-btn" onclick="openAdmin()">✕</button>
+    </div>
+    <div class="panel-body">
 
-    setInterval(() => {
-      slides[currentSlide].classList.remove("active");
-      currentSlide = (currentSlide + 1) % slides.length;
-      slides[currentSlide].classList.add("active");
-    }, 4000);
-  </script>
+      <div id="admin-login">
+        <label class="label">Admin Password</label>
+        <input type="password" id="admin-password" placeholder="password">
+        <button class="primary-btn" onclick="loginAdmin()">Login</button>
+      </div>
 
-  <!-- 🔥 MAIN SCRIPT -->
+      <div id="admin-content" style="display:none">
+        <label class="label">Name</label>
+        <input id="item-name" placeholder="Item Name">
+        <label class="label">Price</label>
+        <input id="item-price" type="number">
+        <label class="label">Image URL</label>
+        <input id="item-image" placeholder="https://...">
+        <label class="label">Game</label>
+        <select id="item-game">
+          <option value="bloodlines">Bloodlines</option>
+          <option value="gpo">GPO</option>
+          <option value="other">Other</option>
+        </select>
+        <label class="label">Stock</label>
+        <input id="item-stock" type="number">
+        <button class="primary-btn" onclick="addItem()">Add Item</button>
+
+        <div class="admin-items" id="admin-items"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast" style="display:none"></div>
+
+  <!-- FIREBASE + APP SCRIPT -->
   <script type="module" src="script.js"></script>
-
 </body>
 </html>
