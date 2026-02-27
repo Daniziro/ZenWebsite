@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: #0f0f1a;
   color: white;
 }
@@ -12,6 +12,51 @@ header {
   background: #141428;
 }
 
+button {
+  background: #6c3bff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #8d63ff;
+}
+
+/* HERO */
+.hero {
+  height: 180px;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: bold;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  opacity: 0;
+  transition: 1s;
+}
+
+.slide.active {
+  opacity: 1;
+}
+
+/* GAME SELECTOR */
+.game-selector {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* ITEMS */
 .items {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -39,22 +84,9 @@ header {
 .price {
   color: #00ffcc;
   font-weight: bold;
-  margin: 10px 0;
 }
 
-button {
-  background: #6c3bff;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #8d63ff;
-}
-
+/* CART */
 .cart-panel {
   position: fixed;
   right: -400px;
@@ -64,14 +96,13 @@ button:hover {
   background: #141428;
   padding: 20px;
   transition: 0.4s;
-  overflow-y: auto;
 }
 
 .cart-panel.open {
   right: 0;
-
 }
 
+/* ADMIN */
 .admin-panel {
   position: fixed;
   left: -400px;
@@ -81,22 +112,17 @@ button:hover {
   background: #141428;
   padding: 20px;
   transition: 0.4s;
-  overflow-y: auto;
 }
 
 .admin-panel.open {
   left: 0;
 }
 
-.admin-panel input {
+.admin-panel input,
+.admin-panel select {
   width: 100%;
   margin-bottom: 10px;
   padding: 8px;
   border-radius: 6px;
   border: none;
-}
-
-.admin-panel button {
-  width: 100%;
-  margin-bottom: 10px;
 }
