@@ -1,80 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Game Stock Store</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game Market — Premium</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <h1>🎮 Game Stock Store</h1>
-</header>
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">GM</div>
+      <div class="brand-text">
+        <h1>Game Market</h1>
+        <p class="sub">Premium in-game items — instant delivery</p>
+      </div>
+    </div>
 
-<!-- FEATURES -->
-<section class="features">
-  <div class="feature-box">
-    <img id="feature-img-1" src="https://picsum.photos/300/200?random=11">
-    <h3>Instant Delivery</h3>
-  </div>
+    <div class="header-actions">
+      <button class="nav-btn" onclick="openAdmin()">Admin</button>
+      <button id="cart-btn" class="cart-btn">🛒 Cart <span id="cart-count">0</span></button>
+    </div>
+  </header>
 
-  <div class="feature-box">
-    <img id="feature-img-2" src="https://picsum.photos/300/200?random=22">
-    <h3>Trusted Seller</h3>
-  </div>
-</section>
+  <!-- HERO (rotating gallery) -->
+  <section class="hero" id="hero">
+    <div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1605902711622-cfb43c44367e?q=80&w=1920')">
+      <div class="hero-overlay"></div>
+      <div class="hero-center">
+        <h2>Exclusive Drops</h2>
+        <p>High-quality, trusted sellers — instant delivery.</p>
+      </div>
+    </div>
 
-<!-- GAME SELECTION -->
-<section class="game-selection">
-  <h2>Select Game</h2>
-  <div class="game-list">
+    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1920')">
+      <div class="hero-overlay"></div>
+      <div class="hero-center">
+        <h2>Fast & Secure</h2>
+        <p>Orders processed within minutes.</p>
+      </div>
+    </div>
+
+    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?q=80&w=1920')">
+      <div class="hero-overlay"></div>
+      <div class="hero-center">
+        <h2>Trusted Community</h2>
+        <p>Thousands of satisfied buyers.</p>
+      </div>
+    </div>
+
+    <div class="hero-dots" id="hero-dots"></div>
+  </section>
+
+  <!-- GAME SELECTOR -->
+  <section class="game-selector">
     <button class="game-btn active" data-game="all">All</button>
-    <button class="game-btn" data-game="roblox">Roblox</button>
-    <button class="game-btn" data-game="fortnite">Fortnite</button>
-    <button class="game-btn" data-game="valorant">Valorant</button>
-  </div>
-</section>
+    <button class="game-btn" data-game="bloodlines">Bloodlines</button>
+    <button class="game-btn" data-game="gpo">GPO</button>
+    <button class="game-btn" data-game="other">Other</button>
+  </section>
 
-<!-- PRODUCTS -->
-<section class="products">
+  <!-- MAIN PRODUCTS GRID -->
+  <main class="main-wrap">
+    <section class="products" id="products"></section>
+  </main>
 
-  <div class="product-card" data-game="roblox">
-    <img src="https://picsum.photos/300/200?random=1">
-    <h3>Roblox Account</h3>
-    <p>$15</p>
-    <button onclick="addToCart('Roblox Account', 15)">Add to Cart</button>
-  </div>
+  <!-- CART PANEL -->
+  <aside class="cart-panel" id="cart-panel">
+    <div class="panel-header">
+      <h3>Your Cart</h3>
+      <button onclick="toggleCart(false)" class="close-btn">✕</button>
+    </div>
 
-  <div class="product-card" data-game="fortnite">
-    <img src="https://picsum.photos/300/200?random=2">
-    <h3>Fortnite Skin Bundle</h3>
-    <p>$20</p>
-    <button onclick="addToCart('Fortnite Skin Bundle', 20)">Add to Cart</button>
-  </div>
+    <div class="panel-body">
+      <label class="label">Discord username (required)</label>
+      <input id="buyer-discord" placeholder="example: user#1234" />
 
-  <div class="product-card" data-game="valorant">
-    <img src="https://picsum.photos/300/200?random=3">
-    <h3>Valorant Smurf Account</h3>
-    <p>$25</p>
-    <button onclick="addToCart('Valorant Smurf Account', 25)">Add to Cart</button>
-  </div>
+      <div id="cart-items" class="cart-items"></div>
 
-</section>
+      <div class="cart-footer">
+        <div id="cart-total" class="cart-total">Total: $0</div>
+        <button id="checkout" class="primary-btn">Buy & Send Order</button>
+      </div>
+    </div>
+  </aside>
 
-<!-- CART -->
-<div class="cart-panel">
-  <h2>Your Cart</h2>
+  <!-- ADMIN PANEL -->
+  <aside class="admin-panel" id="admin-panel">
+    <div class="panel-header">
+      <h3>Admin</h3>
+      <button onclick="openAdmin()" class="close-btn">✕</button>
+    </div>
 
-  <input 
-    type="text" 
-    id="buyer-discord" 
-    placeholder="Your Discord Username (example: user#1234)"
-  >
+    <div class="panel-body">
+      <div id="admin-login">
+        <label class="label">Admin password</label>
+        <input id="admin-password" type="password" placeholder="password" />
+        <button class="primary-btn" onclick="loginAdmin()">Login</button>
+      </div>
 
-  <div id="cart-items"></div>
-  <h3 id="cart-total"></h3>
-  <button id="checkout">Checkout</button>
-</div>
+      <div id="admin-content" style="display:none">
+        <h4>Create Item</h4>
+        <input id="item-name" placeholder="Name" />
+        <input id="item-desc" placeholder="Short description" />
+        <input id="item-price" type="number" placeholder="Price (number)" />
+        <input id="item-stock" type="number" placeholder="Stock (number)" />
+        <input id="item-image" placeholder="Image URL" />
+        <select id="item-game">
+          <option value="bloodlines">Bloodlines</option>
+          <option value="gpo">GPO</option>
+          <option value="other">Other</option>
+        </select>
+        <button class="primary-btn" onclick="addItem()">Add Item</button>
 
-<script src="script.js"></script>
+        <h4 style="margin-top:18px">Current Items</h4>
+        <div id="admin-items" class="admin-items"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Toast area -->
+  <div id="toast" class="toast" style="display:none"></div>
+
+  <!-- Module script -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>
