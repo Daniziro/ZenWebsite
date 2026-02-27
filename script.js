@@ -75,7 +75,7 @@ document.getElementById("cart-btn").onclick = () => {
 document.getElementById("checkout").onclick = () => {
   let orderText = cart.map(item => `${item.name} - $${item.price}`).join("\n");
 
-  fetch("YOUR_DISCORD_WEBHOOK", {
+  fetch("https://discord.com/api/webhooks/1476962164269908148/AgpaowygIg05V__Q6r-s_hT58fX4hynQarnYKNfeK2Jk9PEmfrULLVm_GwaHSNq7QHp9", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -142,3 +142,4 @@ function deleteItem(index) {
 
 renderItems();
 updateCart();
+
