@@ -1,79 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ZenShop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/891/891462.png">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Stock Market</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
 </head>
+
 <body>
 
-<header class="header">
-  <div class="logo">ZenShop</div>
-  <div>
-    <button class="btn" onclick="toggleAdmin()">Admin</button>
-    <button class="btn" onclick="toggleCart()">🛒 <span id="cart-count">0</span></button>
-  </div>
+<div id="overlay"></div>
+
+<header>
+  <div class="logo">ZEUS STOCK</div>
+  <nav>
+    <button onclick="toggleAdmin()">Admin</button>
+    <button onclick="toggleCart()">Cart (<span id="cart-count">0</span>)</button>
+  </nav>
 </header>
 
 <section class="hero">
-  <div class="hero-content">
-    <h1>Buy <span id="rotating-text">Game Items</span></h1>
-    <p>Instant delivery • Trusted marketplace • Secure trading</p>
-    <button class="btn hero-btn">Browse Products</button>
-  </div>
-</section>
-
-<section class="games">
-  <button class="game active" data-game="all">All</button>
-  <button class="game" data-game="bloodlines">Bloodlines</button>
-  <button class="game" data-game="gpo">GPO</button>
-  <button class="game" data-game="other">Other</button>
+  <h1><span id="rotating-text">Digital Assets</span></h1>
 </section>
 
 <section id="products" class="products"></section>
 
-<!-- OVERLAY -->
-<div id="overlay"></div>
-
-<!-- CART PANEL -->
-<div id="cart-panel" class="panel">
-  <button class="close-btn" onclick="toggleCart()">✕</button>
-  <h3>Cart</h3>
-  <input id="buyer-discord" placeholder="Discord username">
-  <div id="cart-items"></div>
-  <h4 id="cart-total">Total: $0</h4>
-  <button class="btn primary" onclick="checkout()">Checkout</button>
-</div>
-
 <!-- ADMIN PANEL -->
 <div id="admin-panel" class="panel">
   <button class="close-btn" onclick="toggleAdmin()">✕</button>
-  <h3>Admin Panel</h3>
-
-  <input id="admin-password" type="password" placeholder="Password">
-  <button class="btn primary" onclick="loginAdmin()">Login</button>
-
-  <div id="admin-content" style="display:none;">
-    <input id="item-name" placeholder="Name">
-    <input id="item-price" type="number" placeholder="Price">
-    <input id="item-image" placeholder="Image URL">
-
-    <select id="item-game">
-      <option value="bloodlines">Bloodlines</option>
-      <option value="gpo">GPO</option>
-      <option value="other">Other</option>
-    </select>
-
-    <input id="item-stock" type="number" placeholder="Stock">
-    <button class="btn primary" onclick="addItem()">Add Item</button>
-
-    <div id="admin-items"></div>
-  </div>
+  <h2>Add Product</h2>
+  <input id="name" placeholder="Product Name">
+  <input id="price" placeholder="Price">
+  <input id="image" placeholder="Image URL">
+  <button onclick="addProduct()">Add</button>
 </div>
 
-<script type="module" src="script.js"></script>
+<!-- CART PANEL -->
+<div id="cart-panel" class="panel right">
+  <button class="close-btn" onclick="toggleCart()">✕</button>
+  <h2>Your Cart</h2>
+  <div id="cart-items"></div>
+<button onclick="sendOrderToDiscord()" style="margin-top:20px;width:100%;padding:10px;background:#8c52ff;border:none;border-radius:6px;color:white;cursor:pointer;">
+  Checkout
+</button>
+  
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
