@@ -169,4 +169,17 @@ document.addEventListener("click", e => {
     renderProducts();
   }
 });
+const words = ["Game Items", "Accounts", "Currency", "Boosting"];
+let i = 0;
+
+setInterval(() => {
+  const el = document.getElementById("rotating-text");
+  if (!el) return;
+  el.style.opacity = 0;
+  setTimeout(() => {
+    el.textContent = words[i];
+    el.style.opacity = 1;
+    i = (i + 1) % words.length;
+  }, 300);
+}, 2000);
 
