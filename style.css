@@ -1,0 +1,72 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f0f1a;
+  color: white;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  background: #141428;
+}
+
+.items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  padding: 40px;
+  gap: 25px;
+}
+
+.item-card {
+  background: #1c1c35;
+  border-radius: 15px;
+  padding: 20px;
+  transition: 0.3s;
+}
+
+.item-card:hover {
+  transform: translateY(-5px);
+  background: #252550;
+}
+
+.item-card img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.price {
+  color: #00ffcc;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+button {
+  background: #6c3bff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #8d63ff;
+}
+
+.cart-panel {
+  position: fixed;
+  right: -400px;
+  top: 0;
+  width: 350px;
+  height: 100%;
+  background: #141428;
+  padding: 20px;
+  transition: 0.4s;
+  overflow-y: auto;
+}
+
+.cart-panel.open {
+  right: 0;
+}
