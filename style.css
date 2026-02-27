@@ -18,12 +18,20 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 60px;
-  background: rgba(15,20,35,0.7);
+  padding: 12px 40px;   /* smaller */
+  background: rgba(15,20,35,0.75);
   backdrop-filter: blur(15px);
   position: fixed;
   width: 100%;
+  top: 0;
   z-index: 1000;
+  transition: 0.3s ease;
+}
+
+/* shrink on scroll */
+.header.scrolled {
+  padding: 8px 40px;
+  background: rgba(10,12,20,0.95);
 }
 
 .logo {
@@ -169,3 +177,4 @@ input, select {
   background: rgba(255,255,255,0.05);
   color: white;
 }
+
