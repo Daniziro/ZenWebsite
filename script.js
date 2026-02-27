@@ -1,93 +1,171 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f0f0f;
-  color: white;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA9XzO8YWtcEDG6Oqy9aUR-NONtZtyASo0",
+  authDomain: "website-8b72a.firebaseapp.com",
+  projectId: "website-8b72a",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const webhook = "YOUR_DISCORD_WEBHOOK_HERE";
+
+let cart = [];
+let products = [];
+let currentGame = "all";
+
+/* ================= ADMIN ================= */
+
+function toggleAdmin() {
+  document.getElementById("admin-panel").classList.toggle("open");
+}
+window.toggleAdmin = toggleAdmin;
+
+function loginAdmin() {
+  if (document.getElementById("admin-password").value === "1234") {
+    document.getElementById("admin-content").style.display = "block";
+  } else {
+    alert("Wrong password");
+  }
+}
+window.loginAdmin = loginAdmin;
+
+async function addItem() {
+  const name = document.getElementById("item-name").value;
+  const price = Number(document.getElementById("item-price").value);
+  const image = document.getElementById("item-image").value;
+  const game = document.getElementById("item-game").value;
+  const stock = Number(document.getElementById("item-stock").value);
+
+  if (!name || !price) return alert("Fill required fields");
+
+  await addDoc(collection(db, "products"), {
+    name, price, image, game, stock
+  });
+
+  alert("Item added");
+}
+window.addItem = addItem;
+
+/* ================= FIRESTORE ================= */
+
+onSnapshot(collection(db, "products"), snapshot => {
+  products = [];
+  snapshot.forEach(doc => {
+    products.push({ id: doc.id, ...doc.data() });
+  });
+  renderProducts();
+  renderAdminItems();
+});
+
+/* ================= RENDER ================= */
+
+function renderProducts() {
+  const container = document.getElementById("products");
+  container.innerHTML = "";
+
+  products
+    .filter(p => currentGame === "all" || p.game === currentGame)
+    .forEach(p => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${p.image || 'https://picsum.photos/300'}">
+        <h3>${p.name}</h3>
+        <p>$${p.price}</p>
+        <button class="btn primary">Add</button>
+      `;
+      card.querySelector("button").onclick = () => {
+        cart.push(p);
+        updateCart();
+      };
+      container.appendChild(card);
+    });
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  padding: 15px 30px;
-  background: #151515;
+function renderAdminItems() {
+  const container = document.getElementById("admin-items");
+  container.innerHTML = "";
+
+  products.forEach(p => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      ${p.name} - $${p.price}
+      <button class="btn">Delete</button>
+    `;
+    div.querySelector("button").onclick = async () => {
+      await deleteDoc(doc(db, "products", p.id));
+    };
+    container.appendChild(div);
+  });
 }
 
-.logo {
-  font-size: 22px;
-  font-weight: bold;
+/* ================= CART ================= */
+
+function toggleCart() {
+  document.getElementById("cart-panel").classList.toggle("open");
+}
+window.toggleCart = toggleCart;
+
+function updateCart() {
+  const items = document.getElementById("cart-items");
+  const totalEl = document.getElementById("cart-total");
+  const count = document.getElementById("cart-count");
+
+  items.innerHTML = "";
+  let total = 0;
+
+  cart.forEach(i => {
+    total += i.price;
+    items.innerHTML += `<div>${i.name} - $${i.price}</div>`;
+  });
+
+  totalEl.innerText = "Total: $" + total;
+  count.innerText = cart.length;
 }
 
-.btn {
-  padding: 8px 14px;
-  background: #222;
-  border: none;
-  color: white;
-  cursor: pointer;
-  border-radius: 6px;
-  margin-left: 8px;
-}
+async function checkout() {
+  const user = document.getElementById("buyer-discord").value;
+  if (!user) return alert("Enter Discord username");
 
-.primary {
-  background: #5b5bff;
-}
+  let total = 0;
+  let itemsText = "";
 
-.games {
-  text-align: center;
-  padding: 15px;
-}
+  cart.forEach(i => {
+    total += i.price;
+    itemsText += `${i.name} - $${i.price}\n`;
+  });
 
-.game {
-  margin: 5px;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  background: #222;
-  color: white;
-  cursor: pointer;
-}
+  await fetch(webhook, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content: `NEW ORDER\nUser: ${user}\n\n${itemsText}\nTotal: $${total}`
+    })
+  });
 
-.game.active {
-  background: #5b5bff;
+  alert("Order sent!");
+  cart = [];
+  updateCart();
 }
+window.checkout = checkout;
 
-.products {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-  padding: 20px;
-}
+/* ================= GAME FILTER ================= */
 
-.card {
-  background: #181818;
-  padding: 15px;
-  border-radius: 10px;
-}
-
-.card img {
-  width: 100%;
-  border-radius: 6px;
-}
-
-.panel {
-  position: fixed;
-  top: 0;
-  right: -400px;
-  width: 320px;
-  height: 100%;
-  background: #151515;
-  padding: 20px;
-  transition: 0.3s;
-  overflow-y: auto;
-}
-
-.panel.open {
-  right: 0;
-}
-
-input, select {
-  width: 100%;
-  padding: 8px;
-  margin: 6px 0;
-  border-radius: 6px;
-  border: none;
-}
+document.addEventListener("click", e => {
+  if (e.target.classList.contains("game")) {
+    document.querySelectorAll(".game").forEach(b => b.classList.remove("active"));
+    e.target.classList.add("active");
+    currentGame = e.target.dataset.game;
+    renderProducts();
+  }
+});
