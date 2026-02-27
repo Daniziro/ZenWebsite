@@ -1,54 +1,61 @@
-const ADMIN_PASSWORD = "1234"; // CHANGE THIS
+// 🔥 Your Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyA9XzO8YWtcEDG6Oqy9aUR-NONtZtyASo0",
+  authDomain: "website-8b72a.firebaseapp.com",
+  projectId: "website-8b72a",
+  storageBucket: "website-8b72a.firebasestorage.app",
+  messagingSenderId: "1068602054468",
+  appId: "1:1068602054468:web:8121c2b47c0848a1f0e911",
+  measurementId: "G-3S9DHP94CD"
+};
 
-let items = JSON.parse(localStorage.getItem("items")) || [
-  {
-    name: "Hyuga Acc",
-    price: 10,
-    description: "Hyuga Unverified +13 Account",
-    stock: 3,
-    image: "Hyuga.png"
-  }
-];
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
+const ADMIN_PASSWORD = "1234"; // change this
+const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1476962164269908148/AgpaowygIg05V__Q6r-s_hT58fX4hynQarnYKNfeK2Jk9PEmfrULLVm_GwaHSNq7QHp9";
+
+let cart = [];
 
 const container = document.getElementById("items-container");
 const cartPanel = document.getElementById("cart-panel");
 const adminPanel = document.getElementById("admin-panel");
 
-function saveItems() {
-  localStorage.setItem("items", JSON.stringify(items));
-}
-
+// 🔥 Real-time listener
 function renderItems() {
-  container.innerHTML = "";
-  items.forEach((item, index) => {
-    container.innerHTML += `
-      <div class="item-card">
-        <img src="${item.image}">
-        <h3>${item.name}</h3>
-        <p>${item.description}</p>
-        <div class="price">$${item.price}</div>
-        <div>Stock: ${item.stock}</div>
-        <button onclick="addToCart(${index})" ${item.stock <= 0 ? "disabled" : ""}>
-          ${item.stock <= 0 ? "Out of Stock" : "Add to Cart"}
-        </button>
-      </div>
-    `;
+  db.collection("items").onSnapshot(snapshot => {
+    container.innerHTML = "";
+
+    snapshot.forEach(doc => {
+      const item = doc.data();
+
+      container.innerHTML += `
+        <div class="item-card">
+          <img src="${item.image}">
+          <h3>${item.name}</h3>
+          <p>${item.description}</p>
+          <div class="price">$${item.price}</div>
+          <div>Stock: ${item.stock}</div>
+          <button onclick="addToCart('${doc.id}', ${item.price}, '${item.name}', ${item.stock})"
+            ${item.stock <= 0 ? "disabled" : ""}>
+            ${item.stock <= 0 ? "Out of Stock" : "Add to Cart"}
+          </button>
+        </div>
+      `;
+    });
   });
 }
 
-function addToCart(index) {
-  if (items[index].stock <= 0) return;
+function addToCart(id, price, name, stock) {
+  if (stock <= 0) return;
 
-  cart.push(items[index]);
-  items[index].stock -= 1;
+  cart.push({ id, price, name });
 
-  saveItems();
-  localStorage.setItem("cart", JSON.stringify(cart));
+  db.collection("items").doc(id).update({
+    stock: firebase.firestore.FieldValue.increment(-1)
+  });
 
   updateCart();
-  renderItems();
 }
 
 function updateCart() {
@@ -72,33 +79,16 @@ document.getElementById("cart-btn").onclick = () => {
   cartPanel.classList.toggle("open");
 };
 
-document.getElementById("checkout").onclick = () => {
-  let orderText = cart.map(item => `${item.name} - $${item.price}`).join("\n");
-
-  fetch("https://discord.com/api/webhooks/1476962164269908148/AgpaowygIg05V__Q6r-s_hT58fX4hynQarnYKNfeK2Jk9PEmfrULLVm_GwaHSNq7QHp9", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      content: `🛒 New Order:\n${orderText}`
-    })
-  });
-
-  alert("Order sent!");
-  cart = [];
-  localStorage.removeItem("cart");
-  updateCart();
-};
-
 function openAdmin() {
   adminPanel.classList.toggle("open");
 }
 
 function loginAdmin() {
   const pass = document.getElementById("admin-password").value;
+
   if (pass === ADMIN_PASSWORD) {
     document.getElementById("admin-login").style.display = "none";
     document.getElementById("admin-content").style.display = "block";
-    renderAdminItems();
   } else {
     alert("Wrong password");
   }
@@ -113,35 +103,34 @@ function addItem() {
     image: document.getElementById("item-image").value
   };
 
-  items.push(newItem);
-  saveItems();
-  renderItems();
-  renderAdminItems();
+  db.collection("items").add(newItem);
 }
 
-function renderAdminItems() {
-  const adminItems = document.getElementById("admin-items");
-  adminItems.innerHTML = "";
+// 🔥 Checkout with Discord webhook
+document.getElementById("checkout").onclick = async () => {
+  if (cart.length === 0) {
+    alert("Cart is empty");
+    return;
+  }
 
-  items.forEach((item, index) => {
-    adminItems.innerHTML += `
-      <div>
-        ${item.name} (Stock: ${item.stock})
-        <button onclick="deleteItem(${index})">Delete</button>
-      </div>
-    `;
+  let total = 0;
+  let orderText = cart.map(item => {
+    total += item.price;
+    return `${item.name} - $${item.price}`;
+  }).join("\n");
+
+  await fetch(DISCORD_WEBHOOK, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content: `🛒 **New Order Received**\n\n${orderText}\n\n💰 Total: $${total}`
+    })
   });
-}
 
-function deleteItem(index) {
-  items.splice(index, 1);
-  saveItems();
-  renderItems();
-  renderAdminItems();
-}
+  alert("Order sent successfully!");
+
+  cart = [];
+  updateCart();
+};
 
 renderItems();
-updateCart();
-
-
-
