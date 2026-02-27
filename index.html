@@ -2,32 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GameVault – Premium Store</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZenShop Web</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
   <!-- HEADER -->
-  <link rel="icon" href="Hyuga.png" type="image/x-icon">
   <header class="site-header">
     <div class="brand">
       <div class="logo">GV</div>
       <div class="brand-text">
-        <h1>GameVault</h1>
+        <h1>ZenShop</h1>
         <p class="sub">In-game items — instant delivery</p>
       </div>
     </div>
+
     <div class="header-actions">
-      <button class="nav-btn" id="openAdminBtn">Admin</button>
-      <button class="cart-btn" id="cart-btn">🛒 <span id="cart-count">0</span></button>
+      <button class="nav-btn" onclick="toggleAdmin()">Admin</button>
+      <button class="cart-btn" onclick="toggleCart()">
+        🛒 <span id="cart-count">0</span>
+      </button>
     </div>
   </header>
 
-  <!-- HERO / IMAGE ROTATING -->
+  <!-- HERO -->
   <section class="hero">
-    <div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1605902711622-cfb43c4437d1?q=80&w=1920');">
+    <div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1605902711622-cfb43c4437d1?q=80&w=1920')">
       <div class="hero-overlay"></div>
       <div class="hero-center">
         <h2>Instant Delivery</h2>
@@ -35,7 +38,7 @@
       </div>
     </div>
 
-    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1920');">
+    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1920')">
       <div class="hero-overlay"></div>
       <div class="hero-center">
         <h2>Exclusive Deals</h2>
@@ -43,7 +46,7 @@
       </div>
     </div>
 
-    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1920');">
+    <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1920')">
       <div class="hero-overlay"></div>
       <div class="hero-center">
         <h2>24/7 Support</h2>
@@ -62,16 +65,14 @@
 
   <!-- PRODUCTS -->
   <main class="main-wrap">
-    <section class="products" id="products">
-      <!-- Firestore items will go here -->
-    </section>
+    <section class="products" id="products"></section>
   </main>
 
   <!-- CART PANEL -->
   <aside class="cart-panel" id="cart-panel">
     <div class="panel-header">
       <h3>Your Cart</h3>
-      <button class="close-btn" onclick="toggleCart(false)">✕</button>
+      <button class="close-btn" onclick="toggleCart()">✕</button>
     </div>
 
     <div class="panel-body">
@@ -79,9 +80,10 @@
       <input id="buyer-discord" placeholder="user#1234">
 
       <div id="cart-items" class="cart-items"></div>
+
       <div class="cart-footer">
         <div id="cart-total" class="cart-total">Total: $0</div>
-        <button id="checkout" class="primary-btn">Place Order</button>
+        <button id="checkout" class="primary-btn" onclick="checkout()">Place Order</button>
       </div>
     </div>
   </aside>
@@ -90,43 +92,45 @@
   <aside class="admin-panel" id="admin-panel">
     <div class="panel-header">
       <h3>Admin Panel</h3>
-      <button class="close-btn" onclick="openAdmin()">✕</button>
+      <button class="close-btn" onclick="toggleAdmin()">✕</button>
     </div>
-    <div class="panel-body">
 
-      <div id="admin-login">
-        <label class="label">Admin Password</label>
-        <input type="password" id="admin-password" placeholder="password">
-        <button class="primary-btn" onclick="loginAdmin()">Login</button>
-      </div>
+    <div class="panel-body">
+      <label class="label">Admin Password</label>
+      <input id="admin-password" type="password" placeholder="password">
+      <button class="primary-btn" onclick="loginAdmin()">Login</button>
 
       <div id="admin-content" style="display:none">
         <label class="label">Name</label>
-        <input id="item-name" placeholder="Item Name">
+        <input id="item-name">
+
         <label class="label">Price</label>
         <input id="item-price" type="number">
+
         <label class="label">Image URL</label>
-        <input id="item-image" placeholder="https://...">
+        <input id="item-image">
+
         <label class="label">Game</label>
         <select id="item-game">
           <option value="bloodlines">Bloodlines</option>
           <option value="gpo">GPO</option>
           <option value="other">Other</option>
         </select>
+
         <label class="label">Stock</label>
         <input id="item-stock" type="number">
+
         <button class="primary-btn" onclick="addItem()">Add Item</button>
 
-        <div class="admin-items" id="admin-items"></div>
+        <h4>Items List</h4>
+        <div id="admin-items" class="admin-items"></div>
       </div>
     </div>
   </aside>
 
-  <!-- TOAST NOTIFICATION -->
+  <!-- Toast -->
   <div id="toast" class="toast" style="display:none"></div>
 
-  <!-- FIREBASE + APP SCRIPT -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
-
