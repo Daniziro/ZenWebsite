@@ -1,79 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
   <title>ZenShop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/891/891462.png">
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<header class="header">
-  <div class="logo">ZenShop</div>
-  <div>
-    <button class="btn" onclick="toggleAdmin()">Admin</button>
-    <button class="btn" onclick="toggleCart()">🛒 <span id="cart-count">0</span></button>
-  </div>
-</header>
+  <!-- background orbs -->
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
 
-<section class="hero">
-  <div class="hero-content">
-    <h1>Buy <span id="rotating-text">Game Items</span></h1>
-    <p>Instant delivery • Trusted marketplace • Secure trading</p>
-    <button class="btn hero-btn">Browse Products</button>
-  </div>
-</section>
+  <header class="navbar">
+    <div class="nav-left">
+      <div class="logo">ZenShop</div>
+    </div>
+    <div class="nav-right">
+      <button class="btn ghost" onclick="toggleAdmin()">Admin</button>
+    </div>
+  </header>
 
-<section class="games">
-  <button class="game active" data-game="all">All</button>
-  <button class="game" data-game="bloodlines">Bloodlines</button>
-  <button class="game" data-game="gpo">GPO</button>
-  <button class="game" data-game="other">Other</button>
-</section>
+  <main>
+    <section class="hero">
+      <h1>Buy <span class="gradient-text">Accounts</span></h1>
+      <p class="sub">Instant delivery • Trusted marketplace • Secure trading</p>
+      <div class="hero-cta">
+        <button class="btn primary" id="browseBtn">Browse Products</button>
+      </div>
+    </section>
 
-<section id="products" class="products"></section>
+    <section class="filter-row">
+      <input id="search" placeholder="Search games, items, etc..." />
+      <div class="category-pills" id="gamesRow">
+        <!-- dynamically filled -->
+      </div>
+    </section>
 
-<!-- OVERLAY -->
-<div id="overlay"></div>
+    <section class="products-section">
+      <h2 class="section-title">Products</h2>
+      <div id="productsGrid" class="grid"></div>
+    </section>
+  </main>
 
-<!-- CART PANEL -->
-<div id="cart-panel" class="panel">
-  <button class="close-btn" onclick="toggleCart()">✕</button>
-  <h3>Cart</h3>
-  <input id="buyer-discord" placeholder="Discord username">
-  <div id="cart-items"></div>
-  <h4 id="cart-total">Total: $0</h4>
-  <button class="btn primary" onclick="checkout()">Checkout</button>
-</div>
+  <!-- Admin modal -->
+  <div id="overlay"></div>
+  <aside id="adminPanel" class="admin-panel" aria-hidden="true">
+    <header class="admin-header">
+      <h3>Admin — Add product</h3>
+      <button class="btn ghost" onclick="toggleAdmin()">Close</button>
+    </header>
 
-<!-- ADMIN PANEL -->
-<div id="admin-panel" class="panel">
-  <button class="close-btn" onclick="toggleAdmin()">✕</button>
-  <h3>Admin Panel</h3>
+    <div class="admin-body">
+      <label>Product name
+        <input id="item-name" type="text" placeholder="Example: Genshin account - 50 primogems">
+      </label>
 
-  <input id="admin-password" type="password" placeholder="Password">
-  <button class="btn primary" onclick="loginAdmin()">Login</button>
+      <label>Price (USD)
+        <input id="item-price" type="number" placeholder="9.99">
+      </label>
 
-  <div id="admin-content" style="display:none;">
-    <input id="item-name" placeholder="Name">
-    <input id="item-price" type="number" placeholder="Price">
-    <input id="item-image" placeholder="Image URL">
+      <label>Game
+        <input id="item-game" type="text" placeholder="Genshin Impact">
+      </label>
 
-    <select id="item-game">
-      <option value="bloodlines">Bloodlines</option>
-      <option value="gpo">GPO</option>
-      <option value="other">Other</option>
-    </select>
+      <label>Category
+        <select id="item-category">
+          <option value="accounts">Accounts</option>
+          <option value="in-game">In-Game Items</option>
+          <option value="topups">Top-ups</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
 
-    <input id="item-stock" type="number" placeholder="Stock">
-    <button class="btn primary" onclick="addItem()">Add Item</button>
+      <label>Stock
+        <input id="item-stock" type="number" min="0" value="1">
+      </label>
 
-    <div id="admin-items"></div>
-  </div>
-</div>
+      <label>Image URL (optional)
+        <input id="item-image" type="url" placeholder="https://...">
+      </label>
 
-<script type="module" src="script.js"></script>
+      <div class="admin-actions">
+        <button class="btn primary" onclick="addItem()">Add Item</button>
+        <button class="btn" onclick="clearAdminInputs()">Clear</button>
+      </div>
+
+      <hr />
+
+      <div>
+        <h4>Existing items</h4>
+        <div id="admin-items"></div>
+      </div>
+    </div>
+  </aside>
+
+  <script type="module" src="script.js"></script>
 </body>
 </html>
