@@ -1,229 +1,264 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+// script.js (module)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-:root{
-  --bg-1: #0b0f1a;
-  --glass-1: rgba(255,255,255,0.04);
-  --accent-purple: #7c3aed;
-  --accent-blue: #3b82f6;
-  --muted: rgba(255,255,255,0.7);
+/* -------------------------------------------------------------------------
+   FIREBASE - keep your config (I left your original project config here)
+   ------------------------------------------------------------------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyA9XzO8YWtcEDG6Oqy9aUR-NONtZtyASo0",
+  authDomain: "website-8b72a.firebaseapp.com",
+  projectId: "website-8b72a",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const productsCol = collection(db, "products");
+
+/* -------------------------------------------------------------------------
+   DOM references
+   ------------------------------------------------------------------------- */
+const productsGrid = document.getElementById("productsGrid");
+const adminPanel = document.getElementById("adminPanel");
+const overlay = document.getElementById("overlay");
+const adminItems = document.getElementById("admin-items");
+const searchInput = document.getElementById("search");
+const gamesRow = document.getElementById("gamesRow");
+
+let allProducts = [];
+let currentGame = "all";
+
+/* -------------------------------------------------------------------------
+   Admin panel toggle
+   ------------------------------------------------------------------------- */
+window.toggleAdmin = function toggleAdmin() {
+  const isOpen = adminPanel.getAttribute("aria-hidden") === "false";
+  adminPanel.setAttribute("aria-hidden", (!isOpen).toString());
+  overlay.classList.toggle("active", !isOpen);
+  overlay.addEventListener("click", () => {
+    adminPanel.setAttribute("aria-hidden", "true");
+    overlay.classList.remove("active");
+  }, { once: true });
+};
+
+/* -------------------------------------------------------------------------
+   Add item (admin) - FIXED: writes to Firestore properly
+   ------------------------------------------------------------------------- */
+window.addItem = async function addItem() {
+  const name = document.getElementById("item-name").value.trim();
+  const price = parseFloat(document.getElementById("item-price").value);
+  const game = document.getElementById("item-game").value.trim() || "General";
+  const category = document.getElementById("item-category").value;
+  const stock = parseInt(document.getElementById("item-stock").value) || 1;
+  const image = document.getElementById("item-image").value.trim() || "";
+
+  if (!name || Number.isNaN(price)) {
+    alert("Please provide product name and valid price.");
+    return;
+  }
+
+  try {
+    await addDoc(productsCol, {
+      name,
+      price,
+      game,
+      category,
+      stock,
+      image,
+      createdAt: serverTimestamp()
+    });
+
+    // small UI feedback
+    showToast("Product added");
+    clearAdminInputs();
+  } catch (err) {
+    console.error("Failed adding product:", err);
+    alert("Error adding product (check console).");
+  }
+};
+
+window.clearAdminInputs = function () {
+  document.getElementById("item-name").value = "";
+  document.getElementById("item-price").value = "";
+  document.getElementById("item-game").value = "";
+  document.getElementById("item-stock").value = "1";
+  document.getElementById("item-image").value = "";
+};
+
+/* -------------------------------------------------------------------------
+   Realtime listener for products
+   ------------------------------------------------------------------------- */
+const q = query(productsCol, orderBy("createdAt", "desc"));
+onSnapshot(q, (snap) => {
+  const items = [];
+  snap.forEach(docSnap => {
+    items.push({ id: docSnap.id, ...docSnap.data() });
+  });
+  allProducts = items;
+  renderProducts();
+  renderAdminList();
+  renderGamePills();
+});
+
+/* -------------------------------------------------------------------------
+   Render functions
+   ------------------------------------------------------------------------- */
+function renderProducts() {
+  const term = (searchInput.value || "").toLowerCase();
+  const filtered = allProducts.filter(p => {
+    if (currentGame !== "all" && p.game && p.game.toLowerCase() !== currentGame) return false;
+    if (term && !(p.name?.toLowerCase().includes(term) || p.game?.toLowerCase().includes(term))) return false;
+    return true;
+  });
+
+  productsGrid.innerHTML = filtered.map(p => productCardHtml(p)).join("");
+  // attach simple event delegation for add-to-cart & admin delete
+  productsGrid.querySelectorAll(".add-cart").forEach(btn => {
+    btn.onclick = (e) => {
+      const id = e.currentTarget.dataset.id;
+      const prod = allProducts.find(x => x.id === id);
+      addToCart(prod);
+      showToast("Added to cart");
+    };
+  });
+  productsGrid.querySelectorAll(".admin-delete").forEach(btn => {
+    btn.onclick = async (e) => {
+      const id = e.currentTarget.dataset.id;
+      if (!confirm("Delete product?")) return;
+      try {
+        await deleteDoc(doc(productsCol.firestore, "products", id));
+        showToast("Deleted");
+      } catch (err) {
+        console.error(err);
+        alert("Delete failed");
+      }
+    };
+  });
 }
 
-/* base */
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family:'Inter',system-ui,Arial;
-  background: radial-gradient(circle at 10% 10%, #0f1230 0%, #07080d 40%, #04050a 100%);
-  color:#fff;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  min-height:100vh;
-  padding-top:72px; /* navbar height spacing */
-  position:relative;
-  overflow-x:hidden;
+function productCardHtml(p) {
+  const img = p.image || `https://picsum.photos/seed/${p.id}/600/400`;
+  const stock = typeof p.stock === "number" ? p.stock : "-";
+  const price = Number(p.price || 0).toFixed(2);
+  // admin-delete available inside admin panel view also: we show delete button only in admin list and here keep add to cart
+  return `
+    <div class="card">
+      <div class="thumb"><img src="${escapeHtml(img)}" alt="${escapeHtml(p.name)}"></div>
+      <div class="meta">
+        <h4>${escapeHtml(p.name)}</h4>
+        <div class="price">$${price}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="tags">
+          <div class="badge">${escapeHtml(p.game || 'General')}</div>
+          <div class="badge">${escapeHtml(p.category || '—')}</div>
+        </div>
+        <div class="actions">
+          <button class="btn small add-cart" data-id="${p.id}">Add</button>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,0.75)">Stock: ${stock}</div>
+    </div>
+  `.trim();
 }
 
-/* background orbs */
-.bg-orb{
-  position:fixed;
-  border-radius:50%;
-  filter:blur(140px);
-  opacity:0.35;
-  z-index:0;
-  pointer-events:none;
-}
-.orb1{width:560px;height:560px;background:#7c3aed;left:-180px;top:-120px}
-.orb2{width:420px;height:420px;background:#2563eb;right:-160px;top:80px}
-.orb3{width:320px;height:320px;background:#f97316;left:10%;bottom:-80px;opacity:0.12}
-
-/* navbar */
-.navbar{
-  position:fixed;
-  top:0;left:0;right:0;
-  height:72px;
-  z-index:60;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 36px;
-  background: linear-gradient(180deg, rgba(10,10,18,0.55), rgba(10,10,18,0.15));
-  backdrop-filter: blur(8px);
-  border-bottom:1px solid rgba(255,255,255,0.03);
-}
-.logo{
-  font-weight:800;
-  letter-spacing:0.6px;
-  font-size:20px;
-  color:white;
+function renderAdminList() {
+  adminItems.innerHTML = allProducts.map(p => `
+    <div class="admin-item">
+      <div class="left">
+        <div class="thumb"><img src="${escapeHtml(p.image || `https://picsum.photos/seed/${p.id}/200/200`)}" style="width:100%;height:100%;object-fit:cover"/></div>
+        <div>
+          <div style="font-weight:700">${escapeHtml(p.name)}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.7)">${escapeHtml(p.game || '')} • $${Number(p.price||0).toFixed(2)}</div>
+        </div>
+      </div>
+      <div class="right">
+        <button class="btn ghost admin-delete" data-id="${p.id}">Delete</button>
+      </div>
+    </div>
+  `).join("");
 }
 
-/* buttons */
-.btn{
-  border:0;
-  padding:8px 14px;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
-  background:transparent;
-  color:var(--muted);
-  transition:all .18s ease;
-}
-.btn.primary{
-  background: linear-gradient(90deg,var(--accent-purple),var(--accent-blue));
-  color:white;
-  box-shadow:0 8px 28px rgba(59,130,246,0.08);
-}
-.btn.ghost{
-  background: rgba(255,255,255,0.03);
-  color:white;
+/* -------------------------------------------------------------------------
+   Game pills (filters)
+   ------------------------------------------------------------------------- */
+function renderGamePills() {
+  const games = ["all", ...new Set(allProducts.map(p => (p.game || "General").toLowerCase()))];
+  gamesRow.innerHTML = games.map(g => `<div class="pill ${currentGame===g?'active':''}" data-game="${g}">${g==='all'?'All':capitalize(g)}</div>`).join("");
+
+  gamesRow.querySelectorAll(".pill").forEach(p => {
+    p.onclick = () => {
+      currentGame = p.dataset.game;
+      // update active classes
+      gamesRow.querySelectorAll(".pill").forEach(x => x.classList.remove("active"));
+      p.classList.add("active");
+      renderProducts();
+    };
+  });
 }
 
-/* hero */
-.hero{
-  text-align:center;
-  padding:120px 16px 40px 16px;
-  z-index:10;
-  position:relative;
+/* -------------------------------------------------------------------------
+   Search
+   ------------------------------------------------------------------------- */
+searchInput.addEventListener("input", () => renderProducts());
+
+/* -------------------------------------------------------------------------
+   Cart (very simple localStorage cart)
+   ------------------------------------------------------------------------- */
+let cart = JSON.parse(localStorage.getItem("zen_cart") || "[]");
+function addToCart(item) {
+  if (!item) return;
+  cart.push({ id: item.id, name: item.name, price: item.price });
+  localStorage.setItem("zen_cart", JSON.stringify(cart));
 }
-.hero h1{
-  margin:0;
-  font-size:56px;
-  font-weight:800;
-  letter-spacing:-1px;
-}
-.gradient-text{
-  background:linear-gradient(90deg,var(--accent-purple),var(--accent-blue));
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  display:inline-block;
-}
-.sub{
-  margin-top:12px;
-  color:rgba(255,255,255,0.85);
-  opacity:0.9;
+window.checkout = function checkout() {
+  if (cart.length === 0) return alert("Cart empty");
+  // stub - implement checkout flow or Discord webhook here
+  showToast("Checkout - implement server flow");
+  cart = [];
+  localStorage.removeItem("zen_cart");
+};
+
+/* -------------------------------------------------------------------------
+   Utility: escape html
+   ------------------------------------------------------------------------- */
+function escapeHtml(s) {
+  if (!s) return "";
+  return s.replaceAll && typeof s.replaceAll === "function" ?
+    s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;") :
+    String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-/* search + pills */
-.filter-row{
-  display:flex;
-  gap:20px;
-  align-items:center;
-  justify-content:center;
-  margin:28px auto 0;
-  width:92%;
-  max-width:1100px;
-  z-index:10;
-}
-.filter-row input#search{
-  flex:1;
-  padding:12px 16px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,0.04);
-  background:rgba(255,255,255,0.03);
-  color:white;
-  outline:none;
-  box-shadow:0 6px 18px rgba(2,6,23,0.6);
-}
-.category-pills{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  flex-wrap:wrap;
-  margin-left:10px;
-}
-.pill{
-  padding:8px 14px;
-  border-radius:999px;
-  background:rgba(255,255,255,0.02);
-  border:1px solid rgba(255,255,255,0.03);
-  cursor:pointer;
-  font-weight:600;
-}
-.pill.active{
-  background:linear-gradient(90deg,var(--accent-purple),var(--accent-blue));
-  color:white;
-  box-shadow:0 8px 20px rgba(124,58,237,0.12);
-}
-
-/* products */
-.products-section{
-  margin:48px auto;
-  width:94%;
-  max-width:1200px;
-  position:relative;
-  z-index:10;
-}
-.section-title{margin:0 0 18px 0;font-size:22px;font-weight:700}
-
-/* grid */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:18px;
-}
-.card{
-  background: rgba(255,255,255,0.03);
-  border-radius:16px;
-  padding:14px;
-  border:1px solid rgba(255,255,255,0.04);
-  backdrop-filter: blur(8px);
-  transition: transform .25s ease, box-shadow .25s ease;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-.card:hover{
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(2,6,23,0.6);
-}
-.card .thumb{
-  width:100%;
-  height:120px;
-  border-radius:12px;
-  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.0));
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-.card .thumb img{width:100%;height:100%;object-fit:cover}
-.card .meta{display:flex;align-items:center;justify-content:space-between}
-.card h4{margin:0;font-size:16px}
-.price{color:var(--accent-purple);font-weight:700}
-.card .tags{display:flex;gap:8px;align-items:center}
-.badge{font-size:12px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03)}
-
-.card .actions{display:flex;gap:8px;margin-top:8px}
-.small{padding:8px 10px;border-radius:10px;font-weight:700}
-
-/* admin modal */
-#overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:.18s;z-index:80;
-}
-#overlay.active{opacity:1;pointer-events:auto}
-.admin-panel{
-  position:fixed;right:20px;top:90px;width:420px;max-width:94%;height:calc(100vh - 120px);border-radius:14px;padding:14px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border:1px solid rgba(255,255,255,0.04);
-  z-index:90;box-shadow:0 30px 60px rgba(2,6,23,0.6);transform: translateY(-10px);opacity:0;pointer-events:none;transition:.18s;
-}
-.admin-panel[aria-hidden="false"]{transform:none;opacity:1;pointer-events:auto}
-.admin-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.03)}
-.admin-body{padding-top:12px;display:flex;flex-direction:column;gap:8px;overflow:auto;height:calc(100% - 56px)}
-.admin-body label{display:flex;flex-direction:column;font-size:13px;color:rgba(255,255,255,0.85)}
-.admin-body input, .admin-body select{margin-top:8px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);color:white;outline:none}
-
-/* admin list */
-#admin-items{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-.admin-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
-.admin-item .left{display:flex;gap:10px;align-items:center}
-.admin-item .left .thumb{width:48px;height:48px;border-radius:8px;overflow:hidden;background:rgba(0,0,0,0.3)}
-.admin-item .right button{margin-left:8px}
-
-/* responsive */
-@media (max-width:700px){
-  .hero h1{font-size:32px}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
-  .admin-panel{left:10px;right:10px;top:70px;width:auto;height:calc(100vh - 80px)}
+/* -------------------------------------------------------------------------
+   Tiny toast utility
+   ------------------------------------------------------------------------- */
+function showToast(message) {
+  const t = document.createElement("div");
+  t.className = "zen-toast";
+  t.innerText = message;
+  Object.assign(t.style, {
+    position: "fixed",
+    right: "20px",
+    bottom: "20px",
+    padding: "10px 14px",
+    borderRadius: "10px",
+    background: "linear-gradient(90deg,#7c3aed,#3b82f6)",
+    color: "white",
+    zIndex: 9999,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+    fontWeight: 700
+  });
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("hide"), 2200);
+  setTimeout(() => t.remove(), 2600);
 }
