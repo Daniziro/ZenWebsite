@@ -1,77 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>ZenShop</title>
-  <link rel="icon" href="favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/891/891462.png">
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<header>
+<header class="header">
   <div class="logo">ZenShop</div>
-  <div class="actions">
-    <button onclick="toggleAdmin()" class="btn">Admin</button>
-    <button onclick="toggleCart()" class="btn">Cart (<span id="cart-count">0</span>)</button>
+  <div>
+    <button class="btn" onclick="toggleAdmin()">Admin</button>
+    <button class="btn" onclick="toggleCart()">🛒 <span id="cart-count">0</span></button>
   </div>
 </header>
 
-<!-- HERO WITH ROTATING IMAGES -->
 <section class="hero">
-  <div class="hero-carousel">
-    <img class="hero-img active" src="https://picsum.photos/1200/400?random=1" />
-    <img class="hero-img" src="https://picsum.photos/1200/400?random=2" />
-    <img class="hero-img" src="https://picsum.photos/1200/400?random=3" />
-  </div>
-  <div class="hero-text">
-    <h1>Welcome to ZenShop</h1>
-    <p class="subtitle"></p>
+  <div class="hero-content">
+    <h1>Buy <span id="rotating-text">Game Items</span></h1>
+    <p>Instant delivery • Trusted marketplace • Secure trading</p>
+    <button class="btn hero-btn">Browse Products</button>
   </div>
 </section>
 
-<section class="game-filter">
-  <button class="game-btn active" data-game="all">All</button>
-  <button class="game-btn" data-game="bloodlines">Bloodlines</button>
-  <button class="game-btn" data-game="gpo">GPO</button>
-  <button class="game-btn" data-game="other">Other</button>
+<section class="games">
+  <button class="game active" data-game="all">All</button>
+  <button class="game" data-game="bloodlines">Bloodlines</button>
+  <button class="game" data-game="gpo">GPO</button>
+  <button class="game" data-game="other">Other</button>
 </section>
 
-<main class="products" id="products"></main>
+<section id="products" class="products"></section>
+
+<!-- OVERLAY -->
+<div id="overlay"></div>
 
 <!-- CART PANEL -->
 <div id="cart-panel" class="panel">
   <button class="close-btn" onclick="toggleCart()">✕</button>
-  <h3>Your Cart</h3>
+  <h3>Cart</h3>
+  <input id="buyer-discord" placeholder="Discord username">
   <div id="cart-items"></div>
-  <div id="cart-total">Total: $0</div>
-  <input id="buyer-discord" placeholder="Your Discord username" />
+  <h4 id="cart-total">Total: $0</h4>
   <button class="btn primary" onclick="checkout()">Checkout</button>
 </div>
 
 <!-- ADMIN PANEL -->
 <div id="admin-panel" class="panel">
   <button class="close-btn" onclick="toggleAdmin()">✕</button>
-  <h3>Admin</h3>
-  <input id="admin-password" type="password" placeholder="Admin Password" />
-  <button class="btn" onclick="loginAdmin()">Login</button>
+  <h3>Admin Panel</h3>
 
-  <div id="admin-content" style="display:none">
-    <input id="item-name" placeholder="Item Name" />
-    <input id="item-desc" placeholder="Description" />
-    <input id="item-price" type="number" placeholder="Price" />
-    <input id="item-stock" type="number" placeholder="Stock" />
-    <input id="item-image" placeholder="Image URL" />
+  <input id="admin-password" type="password" placeholder="Password">
+  <button class="btn primary" onclick="loginAdmin()">Login</button>
+
+  <div id="admin-content" style="display:none;">
+    <input id="item-name" placeholder="Name">
+    <input id="item-price" type="number" placeholder="Price">
+    <input id="item-image" placeholder="Image URL">
+
     <select id="item-game">
       <option value="bloodlines">Bloodlines</option>
       <option value="gpo">GPO</option>
       <option value="other">Other</option>
     </select>
+
+    <input id="item-stock" type="number" placeholder="Stock">
     <button class="btn primary" onclick="addItem()">Add Item</button>
 
-    <h4>Existing Items</h4>
     <div id="admin-items"></div>
   </div>
 </div>
